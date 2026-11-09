@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Il mio primo Fullstack</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #f4f4f9; 
+            color: #333;
+            max-width: 600px;
+            margin: 2rem auto; 
+            padding: 0 1rem;
+        }
+        h1 { color: #e50914; /* Rosso Netflix */ }
+        .card {
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        button { 
+            padding: 12px 20px; 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+            border-radius: 5px; 
+            font-size: 16px;
+            font-weight: bold;
+            width: 100%;
+        }
+        button:hover { background: #0056b3; }
+        
+        #risultati { margin-top: 20px; }
+        
+        .film-item { 
+            border-bottom: 1px solid #eee; 
+            padding: 12px 0; 
+            display: flex;
+            justify-content: space-between;
+        }
+        .film-item:last-child { border-bottom: none; }
+        .genere-badge {
+            background: #eee;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>🎥 Catalogo Film</h1>
+        <p>Premi il pulsante per fare una richiesta HTTP (fetch) al server Node.js. Il server leggerà il database SQLite e ti restituirà i dati!</p>
+        
+        <button id="btn-carica">Scarica Dati dal Database</button>
+        
+        <div id="risultati">
+            <!-- I dati verranno inseriti qui dal Javascript -->
+        </div>
+    </div>
+
+    <script>
+        // Quando l'utente clicca il bottone...
+        document.getElementById('btn-carica').addEventListener('click', async () => {
+            const risultatiDiv = document.getElementById('risultati');
+            risultatiDiv.innerHTML = '<p>Caricamento in corso...</p>';
+            
+            try {
+                // 1. Fai la chiamata alla nostra API (creata in server.js)
+                const response = await fetch('/api/film');
+                
+                // 2. Trasforma la risposta in formato JSON
+                const dati = await response.json();
+                
+                // 3. Svuota il div e disegna i dati sullo schermo (Modifica live del DOM)
+                risultatiDiv.innerHTML = ''; 
+                
+                dati.forEach(film => {
+                    const div = document.createElement('div');
+                    div.className = 'film-item';
+                    div.innerHTML = `
+                        <div>
+                            <strong>${film.titolo}</strong> (${film.anno})
+                        </div>
+                        <span class="genere-badge">${film.genere}</span>
+                    `;
+                    risultatiDiv.appendChild(div);
+                });
+                
+            } catch (error) {
+                risultatiDiv.innerHTML = '<p style="color:red;">Errore: Impossibile contattare il server.</p>';
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+</html>
