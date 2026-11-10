@@ -1,7 +1,7 @@
 # Dipendenze
 node_modules/
 
-# Database generato da `npm run setup`
+# Database generato da `npm run setup-db`
 *.sqlite
 *.sqlite3
 *.db
@@ -37,3 +37,6 @@ build/
 # Sistema operativo
 .DS_Store
 Thumbs.db
+
+# Doc interni
+local-docs

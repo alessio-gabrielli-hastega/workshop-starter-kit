@@ -4,7 +4,8 @@
   "description": "Workbook per il corso pratico di programmazione",
   "scripts": {
     "setup-db": "node lezione-3-database/setup-db.js",
-    "start-api": "node lezione-4-e-5-app-finale/server.js"
+    "start-api": "node lezione-4-server-api/server.js",
+    "start-app": "node lezione-5-fullstack/server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

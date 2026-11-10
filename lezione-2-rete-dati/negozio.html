@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>E-commerce Finto - Lezione 2</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; margin-top: 50px; }
+        .prodotto { border: 1px solid #ccc; padding: 20px; width: 300px; margin: 0 auto; border-radius: 8px; }
+        .prezzo { color: red; font-size: 24px; font-weight: bold; }
+        button { background-color: blue; color: white; padding: 10px 20px; border: none; cursor: pointer; }
+        .carrello { border: 1px dashed #999; padding: 20px; width: 300px; margin: 30px auto 0; border-radius: 8px; text-align: left; }
+    </style>
+</head>
+<body>
+    <h1>Benvenuto nel nostro Shop</h1>
+    <p>Premi F12 e apri la scheda <strong>Console</strong>!</p>
+
+    <div class="prodotto">
+        <h2 id="nome-prodotto">Super Scarpe X</h2>
+        <p class="prezzo" id="prezzo-prodotto">€ 150,00</p>
+        <button id="bottone-compra">Acquista Ora</button>
+    </div>
+
+    <div class="carrello">
+        <h2>🛒 Carrello</h2>
+        <ul id="carrello"></ul>
+    </div>
+
+    <!-- Codice della Lezione 1: aggiunge il prodotto al carrello -->
+    <script>
+        const bottone = document.getElementById('bottone-compra');
+
+        bottone.addEventListener('click', () => {
+            const nome = document.getElementById('nome-prodotto').textContent;
+            const prezzo = document.getElementById('prezzo-prodotto').textContent;
+
+            const elemento = document.createElement('li');
+            elemento.textContent = nome + ' - ' + prezzo;
+
+            document.getElementById('carrello').appendChild(elemento);
+        });
+    </script>
+
+    <!-- Lezione 2: scrivi qui sotto il codice che lavora con i dati JSON -->
+    <script>
+
+    </script>
+</body>
+</html>
