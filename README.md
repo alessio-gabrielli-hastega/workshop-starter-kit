@@ -20,6 +20,7 @@ Se il popup non compare, cercale a mano nel pannello Estensioni (`Ctrl+Shift+X`)
 |---|---|
 | Thunder Client | `rangav.vscode-thunder-client` |
 | Database Client | `cweijan.vscode-database-client2` |
+| Cline | `saoudrizwan.claude-dev` |
 | Italian Language Pack for Visual Studio Code (facoltativa) | `MS-CEINTL.vscode-language-pack-it` |
 
 ## Le cartelle
@@ -30,7 +31,7 @@ Se il popup non compare, cercale a mano nel pannello Estensioni (`Ctrl+Shift+X`)
 | `lezione-2-rete-dati/` | 2 - JSON e dati |
 | `lezione-3-database/` | 3 - SQL e database |
 | `lezione-4-server-api/` | 4 - Il server e le API |
-| `lezione-5-fullstack/` | 5 - Frontend + Backend insieme |
+| `lezione-5-fullstack/` | 5 - Frontend + Backend insieme, sviluppo con l'AI |
 
 ## Comandi
 
