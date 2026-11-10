@@ -1,0 +1,22 @@
+{
+  "utente_id": "U-9982",
+  "nome": "Mario",
+  "cognome": "Rossi",
+  "carrello": {
+    "totale_oggetti": 2,
+    "importo_totale": 240.50,
+    "valuta": "EUR"
+  },
+  "prodotti": [
+    {
+      "id_prodotto": "P-101",
+      "nome": "Cuffie Wireless",
+      "prezzo": 190.00
+    },
+    {
+      "id_prodotto": "P-452",
+      "nome": "Mouse Ergonomico",
+      "prezzo": 50.50
+    }
+  ]
+}

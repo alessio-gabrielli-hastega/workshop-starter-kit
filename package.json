@@ -1,11 +1,10 @@
 {
-  "name": "workshop-starter-kit",
+  "name": "workshop-corso-completo",
   "version": "1.0.0",
-  "description": "Progetto pratico base per il workshop: Express + SQLite + HTML",
-  "main": "server.js",
+  "description": "Workbook per il corso pratico di programmazione",
   "scripts": {
-    "setup": "node setup-db.js",
-    "start": "node server.js"
+    "setup-db": "node lezione-3-database/setup-db.js",
+    "start-api": "node lezione-4-e-5-app-finale/server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
