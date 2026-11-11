@@ -18,7 +18,7 @@ Se il popup non compare, cercale a mano nel pannello Estensioni (`Ctrl+Shift+X`)
 
 | Nome | ID |
 |---|---|
-| Thunder Client | `rangav.vscode-thunder-client` |
+| REST Client | `humao.rest-client` |
 | Database Client | `cweijan.vscode-database-client2` |
 | Cline | `saoudrizwan.claude-dev` |
 | Italian Language Pack for Visual Studio Code (facoltativa) | `MS-CEINTL.vscode-language-pack-it` |
