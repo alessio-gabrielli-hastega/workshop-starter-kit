@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalogo Film (Lezione 8 - starter)</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+        .film { background: #eee; padding: 10px; margin-bottom: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        .film small { color: #555; }
+        button { padding: 10px; background: #e50914; color: white; border: none; cursor: pointer; border-radius: 4px; }
+        #stato { margin: 10px 0; min-height: 1.2em; color: #555; }
+        form { background: #f7f7f7; padding: 15px; border-radius: 5px; margin-top: 30px; }
+        form label { display: block; margin-bottom: 10px; }
+        form input, form select { display: block; width: 100%; padding: 6px; box-sizing: border-box; margin-top: 3px; }
+    </style>
+</head>
+<body>
+    <h1>Catalogo Film</h1>
+
+    <label>Filtra per genere:
+        <select id="filtro-genere">
+            <option value="">Tutti</option>
+            <option value="Animazione">Animazione</option>
+            <option value="Avventura">Avventura</option>
+            <option value="Azione">Azione</option>
+            <option value="Commedia">Commedia</option>
+            <option value="Crime">Crime</option>
+            <option value="Drammatico">Drammatico</option>
+            <option value="Fantascienza">Fantascienza</option>
+            <option value="Guerra">Guerra</option>
+            <option value="Thriller">Thriller</option>
+        </select>
+    </label>
+
+    <div id="stato"></div>
+    <div id="lista-film"></div>
+
+    <form id="form-film">
+        <h2>Aggiungi un film</h2>
+        <label>Titolo (obbligatorio)
+            <input type="text" id="titolo" name="titolo" required>
+        </label>
+        <label>Anno
+            <input type="number" id="anno" name="anno" min="1888" max="2100" required>
+        </label>
+        <label>Genere (facoltativo)
+            <input type="text" id="genere" name="genere">
+        </label>
+        <label>Durata in minuti (facoltativa)
+            <input type="number" id="durata_min" name="durata_min" min="1">
+        </label>
+        <label>Regista
+            <select id="regista" name="regista_id" required></select>
+        </label>
+        <button type="submit">Aggiungi</button>
+    </form>
+
+    <script>
+        // Tutte le richieste vanno a percorsi relativi ("/api/..."): pagina e API hanno la stessa origin, niente CORS.
+        const API = '/api';
+
+        // ---- fetch da zero ----
+        // fetch() fa una richiesta HTTP dal browser e restituisce una PROMISE: una "promessa" di un risultato
+        // che arrivera' piu' tardi (la rete e' lenta). Con `await` aspettiamo il risultato senza bloccare la pagina.
+        // `await` si puo' usare solo dentro una `async function`.
+        // ATTENZIONE: fetch NON lancia errore su 404 o 500 (solo se la rete e' giu'): bisogna controllare res.ok.
+        // JSON: res.json() legge il body come oggetto; JSON.stringify() trasforma un oggetto in testo da inviare.
+        //
+        // Esempio minimo da cui partire:
+        //   const res = await fetch('/api/film');
+        //   const film = await res.json();
+        //   console.log(film);
+
+        // TODO: wrapper per tutte le chiamate.
+        //   Fa fetch(url, { headers: { 'Content-Type': 'application/json' }, ...opzioni }).
+        //   Se res.status e' 204 ritorna null. Altrimenti legge res.json().
+        //   Se !res.ok lancia new Error(...) con il messaggio `errore` inviato dal server.
+        async function chiamaApi(url, opzioni = {}) {
+        }
+
+        // TODO: scrive `testo` nell'elemento #stato; se eErrore e' true lo colora di rosso.
+        function mostraStato(testo, eErrore = false) {
+        }
+
+        // TODO: svuota #lista-film e per ogni film crea un <div class="film"> con titolo, anno, genere
+        //   e un bottone "Elimina" che chiama eliminaFilm(f.id).
+        //   Usa document.createElement e textContent, MAI innerHTML con dati dell'utente (rischio XSS).
+        function disegnaLista(film) {
+        }
+
+        // TODO: mostraStato('Caricamento...'), poi GET /api/film (con ?genere=... se il filtro e' scelto,
+        //   usa encodeURIComponent), poi disegnaLista(...). Se la lista e' vuota scrivi "Nessun film trovato.".
+        //   Se c'e' un errore, mostralo con mostraStato(..., true).
+        async function caricaFilm() {
+        }
+
+        // TODO: GET /api/registi e riempi il <select id="regista"> con una <option> per regista (value = id, testo = nome).
+        async function caricaRegisti() {
+        }
+
+        // TODO: gestore del submit del form.
+        //   1) evento.preventDefault()
+        //   2) costruisci l'oggetto: anno e regista_id con Number(...); genere e durata_min a null se vuoti
+        //   3) POST /api/film con body JSON.stringify(oggetto)
+        //   4) se va bene: reset del form e caricaFilm(); se il server risponde 400 o 409 mostra il suo messaggio
+        async function creaFilm(evento) {
+        }
+
+        // TODO: chiedi conferma con confirm(...), poi DELETE /api/film/<id> e infine caricaFilm().
+        async function eliminaFilm(id) {
+        }
+
+        // Collegamenti iniziali (gia' pronti)
+        document.getElementById('form-film').addEventListener('submit', creaFilm);
+        document.getElementById('filtro-genere').addEventListener('change', caricaFilm);
+        caricaRegisti();
+        caricaFilm();
+    </script>
+</body>
+</html>

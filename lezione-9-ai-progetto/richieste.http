@@ -1,0 +1,174 @@
+# Lezione 9: richieste HTTP per provare il progetto (test della Lezione 7 + nuovi test in fondo).
+# Prima: npm run setup-db, poi npm run aggiungi-recensioni, poi npm run start-l9.
+# Sopra ogni richiesta compare il link "Send Request": cliccalo per inviarla.
+# Le richieste si separano con una riga che inizia con ###
+# Includono tutti i test della Lezione 4 (qui i film sono 22) piu' quelli nuovi in fondo.
+# Nota: i test di creazione/cancellazione modificano il DB; per ripartire: npm run setup-db + npm run aggiungi-recensioni.
+
+@baseUrl = http://localhost:3000
+
+### 1. Elenco film -> 200, 22 elementi (dopo npm run setup-db)
+GET {{baseUrl}}/api/film
+
+### 2a. Filtro per genere -> 200, 3 elementi
+GET {{baseUrl}}/api/film?genere=Fantascienza
+
+### 2b. Filtro case-insensitive -> 200, 3 elementi
+GET {{baseUrl}}/api/film?genere=fantascienza
+
+### 2c. Genere inesistente -> 200, []
+GET {{baseUrl}}/api/film?genere=Inesistente
+
+### 3a. Dettaglio -> 200
+GET {{baseUrl}}/api/film/1
+
+### 3b. Id inesistente -> 404
+GET {{baseUrl}}/api/film/999
+
+### 3c. Id non valido -> 400
+GET {{baseUrl}}/api/film/abc
+
+### 4. Creazione -> 201, header Location, body con id
+# @name creato
+POST {{baseUrl}}/api/film
+Content-Type: application/json
+
+{ "titolo": "Il mio primo film", "anno": 2024, "genere": "Commedia", "durata_min": 90, "regista_id": 7 }
+
+### 5. Rileggo il film appena creato -> 200
+GET {{baseUrl}}/api/film/{{creato.response.body.$.id}}
+
+### 6a. POST senza titolo -> 400
+POST {{baseUrl}}/api/film
+Content-Type: application/json
+
+{ "anno": 2024, "regista_id": 7 }
+
+### 6b. POST con anno stringa -> 400
+POST {{baseUrl}}/api/film
+Content-Type: application/json
+
+{ "titolo": "Anno sbagliato", "anno": "2010", "regista_id": 7 }
+
+### 6c. POST con regista_id negativo -> 400
+POST {{baseUrl}}/api/film
+Content-Type: application/json
+
+{ "titolo": "Regista negativo", "anno": 2010, "regista_id": -1 }
+
+### 6d. POST con JSON non chiuso -> 400 "JSON non valido"
+POST {{baseUrl}}/api/film
+Content-Type: application/json
+
+{ "titolo":
+
+### 6e. POST duplicato (stesso titolo e anno di un film esistente) -> 409
+POST {{baseUrl}}/api/film
+Content-Type: application/json
+
+{ "titolo": "Matrix", "anno": 1999, "regista_id": 3 }
+
+### 7a. PUT valido -> 200
+PUT {{baseUrl}}/api/film/1
+Content-Type: application/json
+
+{ "titolo": "Inception", "anno": 2010, "genere": "Fantascienza", "durata_min": 150, "regista_id": 1 }
+
+### 7b. PUT su id inesistente -> 404
+PUT {{baseUrl}}/api/film/999
+Content-Type: application/json
+
+{ "titolo": "Fantasma", "anno": 2000, "regista_id": 1 }
+
+### 7c. PUT con body non valido -> 400
+PUT {{baseUrl}}/api/film/1
+Content-Type: application/json
+
+{ "titolo": "", "anno": 2010, "regista_id": 1 }
+
+### 8a. DELETE del film creato al punto 4 -> 204
+DELETE {{baseUrl}}/api/film/{{creato.response.body.$.id}}
+
+### 8b. Ripeti la DELETE -> 404
+DELETE {{baseUrl}}/api/film/{{creato.response.body.$.id}}
+
+### 9. Rotta inesistente -> 404 { "errore": ... }
+GET {{baseUrl}}/api/inesistente
+
+### ===== NUOVI TEST DELLA LEZIONE 7 (database) =====
+
+### 10a. POST con regista inesistente -> 400 (chiave esterna; in Lezione 4 invece 201)
+POST {{baseUrl}}/api/film
+Content-Type: application/json
+
+{ "titolo": "Regista fantasma", "anno": 2020, "regista_id": 999 }
+
+### 11a. Elenco registi -> 200, 8 elementi
+GET {{baseUrl}}/api/registi
+
+### 11b. Film di Nolan -> 200, 6 film
+GET {{baseUrl}}/api/registi/1/film
+
+### 11c. Fellini non ha film -> 200, []
+GET {{baseUrl}}/api/registi/8/film
+
+### 11d. Regista inesistente -> 404
+GET {{baseUrl}}/api/registi/999/film
+
+### 12a. Recensioni di Inception -> 200 (3 recensioni dopo `npm run aggiungi-recensioni`)
+GET {{baseUrl}}/api/film/1/recensioni
+
+### 12b. Recensioni di un film inesistente -> 404
+GET {{baseUrl}}/api/film/999/recensioni
+
+### 12c. Nuova recensione -> 201
+POST {{baseUrl}}/api/film/1/recensioni
+Content-Type: application/json
+
+{ "autore": "Anna", "voto": 4, "commento": "Bello" }
+
+### 12d. Stessa recensione ripetuta (stesso autore, stesso film) -> 409
+POST {{baseUrl}}/api/film/1/recensioni
+Content-Type: application/json
+
+{ "autore": "Anna", "voto": 4, "commento": "Bello" }
+
+### 12e. Voto fuori range -> 400
+POST {{baseUrl}}/api/film/1/recensioni
+Content-Type: application/json
+
+{ "autore": "Paolo", "voto": 7 }
+
+### 12f. Autore mancante -> 400
+POST {{baseUrl}}/api/film/1/recensioni
+Content-Type: application/json
+
+{ "voto": 3 }
+
+### 13. SQL injection sulla rotta sicura -> 200 e [] (sulla versione vulnerabile restituirebbe TUTTI i film)
+GET {{baseUrl}}/api/film?genere=%27%20OR%20%271%27%3D%271
+
+### 14. PERSISTENZA: crea un film (richiesta 4), ferma il server con Ctrl+C, riavvialo
+###     e rifai GET /api/film: il film c'e' ancora. Questo risponde alla domanda finale della Lezione 4.
+GET {{baseUrl}}/api/film
+
+### ===== NUOVI TEST DEL PROGETTO (Lezione 9) =====
+### Da fare passare dopo aver aggiunto le funzioni con Cline.
+
+### P1. Ogni film ha voto_medio e numero_recensioni (Inception: 4.7 e 3 dopo aggiungi-recensioni)
+GET {{baseUrl}}/api/film
+
+### P2. Filtro per attore -> 2 film (Il Padrino, Apocalypse Now)
+GET {{baseUrl}}/api/film?attore=Brando
+
+### P3. Filtro case-insensitive e parziale -> 3 film
+GET {{baseUrl}}/api/film?attore=de%20niro
+
+### P4. Attore inesistente -> 200, []
+GET {{baseUrl}}/api/film?attore=zzz
+
+### P5. Filtri combinati -> solo i film di Crime con Robert De Niro
+GET {{baseUrl}}/api/film?attore=de%20niro&genere=Crime
+
+### P6. Elenco attori -> 200, 17 elementi
+GET {{baseUrl}}/api/attori

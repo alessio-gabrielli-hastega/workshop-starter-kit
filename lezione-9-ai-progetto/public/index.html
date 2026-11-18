@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalogo Film (Lezione 9)</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+        .film { background: #eee; padding: 10px; margin-bottom: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        .film small { color: #555; }
+        button { padding: 10px; background: #e50914; color: white; border: none; cursor: pointer; border-radius: 4px; }
+        #stato { margin: 10px 0; min-height: 1.2em; color: #555; }
+        form { background: #f7f7f7; padding: 15px; border-radius: 5px; margin-top: 30px; }
+        form label { display: block; margin-bottom: 10px; }
+        form input, form select { display: block; width: 100%; padding: 6px; box-sizing: border-box; margin-top: 3px; }
+    </style>
+</head>
+<body>
+    <h1>Catalogo Film</h1>
+
+    <label>Filtra per genere:
+        <select id="filtro-genere">
+            <option value="">Tutti</option>
+            <option value="Animazione">Animazione</option>
+            <option value="Avventura">Avventura</option>
+            <option value="Azione">Azione</option>
+            <option value="Commedia">Commedia</option>
+            <option value="Crime">Crime</option>
+            <option value="Drammatico">Drammatico</option>
+            <option value="Fantascienza">Fantascienza</option>
+            <option value="Guerra">Guerra</option>
+            <option value="Thriller">Thriller</option>
+        </select>
+    </label>
+
+    <div id="stato"></div>
+    <div id="lista-film"></div>
+
+    <form id="form-film">
+        <h2>Aggiungi un film</h2>
+        <label>Titolo (obbligatorio)
+            <input type="text" id="titolo" name="titolo" required>
+        </label>
+        <label>Anno
+            <input type="number" id="anno" name="anno" min="1888" max="2100" required>
+        </label>
+        <label>Genere (facoltativo)
+            <input type="text" id="genere" name="genere">
+        </label>
+        <label>Durata in minuti (facoltativa)
+            <input type="number" id="durata_min" name="durata_min" min="1">
+        </label>
+        <label>Regista
+            <select id="regista" name="regista_id" required></select>
+        </label>
+        <button type="submit">Aggiungi</button>
+    </form>
+
+    <script>
+        // Tutte le richieste vanno a percorsi relativi ("/api/..."): pagina e API hanno la stessa origin, niente CORS.
+        const API = '/api';
+
+        // ---- fetch da zero ----
+        // fetch() fa una richiesta HTTP dal browser e restituisce una PROMISE: una "promessa" di un risultato
+        // che arrivera' piu' tardi (la rete e' lenta). Con `await` aspettiamo il risultato senza bloccare la pagina.
+        // `await` si puo' usare solo dentro una `async function`.
+        // ATTENZIONE: fetch NON lancia errore su 404 o 500 (solo se la rete e' giu'): bisogna controllare res.ok.
+        // JSON: res.json() legge il body come oggetto; JSON.stringify() trasforma un oggetto in testo da inviare.
+
+        // Wrapper: fa la richiesta, controlla res.ok e, se c'e' un errore, lancia un'eccezione con il messaggio del server.
+        async function chiamaApi(url, opzioni = {}) {
+            const res = await fetch(url, {
+                headers: { 'Content-Type': 'application/json' },
+                ...opzioni
+            });
+            if (res.status === 204) return null; // 204 = nessun contenuto (DELETE riuscita)
+            let dati = null;
+            try { dati = await res.json(); } catch (e) { /* body vuoto o non JSON */ }
+            if (!res.ok) throw new Error((dati && dati.errore) || `Errore HTTP ${res.status}`);
+            return dati;
+        }
+
+        function mostraStato(testo, eErrore = false) {
+            const el = document.getElementById('stato');
+            el.textContent = testo;
+            el.style.color = eErrore ? '#b00020' : '#555';
+        }
+
+        // Disegna la lista. Usiamo createElement e textContent, MAI innerHTML con dati dell'utente o del DB:
+        // con innerHTML un titolo come "<img onerror=...>" eseguirebbe codice (attacco XSS).
+        function disegnaLista(film) {
+            const contenitore = document.getElementById('lista-film');
+            contenitore.replaceChildren();
+            film.forEach(f => {
+                const riga = document.createElement('div');
+                riga.className = 'film';
+
+                const info = document.createElement('div');
+                const titolo = document.createElement('strong');
+                titolo.textContent = f.titolo;
+                const dettagli = document.createElement('small');
+                const parti = [f.anno];
+                if (f.genere) parti.push(f.genere);
+                if (f.durata_min) parti.push(`${f.durata_min} min`);
+                dettagli.textContent = parti.join(' - ');
+                info.append(titolo, document.createElement('br'), dettagli);
+
+                const bottone = document.createElement('button');
+                bottone.type = 'button';
+                bottone.textContent = 'Elimina';
+                bottone.addEventListener('click', () => eliminaFilm(f.id));
+
+                riga.append(info, bottone);
+                contenitore.appendChild(riga);
+            });
+        }
+
+        async function caricaFilm() {
+            mostraStato('Caricamento...');
+            try {
+                const genere = document.getElementById('filtro-genere').value;
+                const url = genere ? `${API}/film?genere=${encodeURIComponent(genere)}` : `${API}/film`;
+                const film = await chiamaApi(url);
+                disegnaLista(film);
+                mostraStato(film.length === 0 ? 'Nessun film trovato.' : '');
+            } catch (e) {
+                mostraStato(`Impossibile caricare i film: ${messaggio(e)}`, true);
+            }
+        }
+
+        async function caricaRegisti() {
+            try {
+                const registi = await chiamaApi(`${API}/registi`);
+                const select = document.getElementById('regista');
+                registi.forEach(r => {
+                    const opzione = document.createElement('option');
+                    opzione.value = r.id;
+                    opzione.textContent = r.nome;
+                    select.appendChild(opzione);
+                });
+            } catch (e) {
+                mostraStato(`Impossibile caricare i registi: ${messaggio(e)}`, true);
+            }
+        }
+
+        async function creaFilm(evento) {
+            evento.preventDefault(); // evita che il form ricarichi la pagina
+            const genere = document.getElementById('genere').value.trim();
+            const durata = document.getElementById('durata_min').value;
+            const nuovo = {
+                titolo: document.getElementById('titolo').value,
+                anno: Number(document.getElementById('anno').value),
+                genere: genere === '' ? null : genere,
+                durata_min: durata === '' ? null : Number(durata),
+                regista_id: Number(document.getElementById('regista').value)
+            };
+            try {
+                await chiamaApi(`${API}/film`, { method: 'POST', body: JSON.stringify(nuovo) });
+                document.getElementById('form-film').reset();
+                await caricaFilm();
+            } catch (e) {
+                mostraStato(`Impossibile aggiungere il film: ${messaggio(e)}`, true); // es. 400 o 409 dal server
+            }
+        }
+
+        async function eliminaFilm(id) {
+            if (!confirm('Vuoi davvero eliminare questo film?')) return;
+            try {
+                await chiamaApi(`${API}/film/${id}`, { method: 'DELETE' });
+                await caricaFilm();
+            } catch (e) {
+                mostraStato(`Impossibile eliminare il film: ${messaggio(e)}`, true);
+            }
+        }
+
+        // Se il server e' spento fetch lancia un TypeError ("Failed to fetch"): lo rendiamo comprensibile.
+        function messaggio(e) {
+            return e instanceof TypeError ? 'il server non risponde (e\' acceso?)' : e.message;
+        }
+
+        document.getElementById('form-film').addEventListener('submit', creaFilm);
+        document.getElementById('filtro-genere').addEventListener('change', caricaFilm);
+        caricaRegisti();
+        caricaFilm();
+    </script>
+</body>
+</html>

@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "Workbook per il corso pratico di programmazione",
   "scripts": {
-    "setup-db": "node lezione-3-database/setup-db.js",
-    "start-api": "node lezione-4-server-api/server.js",
-    "start-app": "node lezione-5-fullstack/server.js"
+    "setup-db": "node lezione-5-database/setup-db.js",
+    "aggiungi-recensioni": "node lezione-7-server-db/aggiungi-recensioni.js",
+    "start-l4": "node lezione-4-server/server.js",
+    "start-l7": "node lezione-7-server-db/server.js",
+    "start-app": "node lezione-8-fullstack/server.js",
+    "start-l9": "node lezione-9-ai-progetto/server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

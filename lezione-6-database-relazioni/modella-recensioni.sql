@@ -1,0 +1,32 @@
+-- Lezione 6: modella la tabella delle RECENSIONI.
+--
+-- CONSEGNA
+-- Il sito deve permettere di recensire un film. Una recensione ha:
+--   il film recensito, il nome dell'autore, un voto da 1 a 5, un commento facoltativo e la data.
+--
+-- DOMANDE GUIDA (rispondi prima di scrivere il codice)
+--   - Che relazione c'e' tra film e recensioni? (1-N: un film, molte recensioni.)
+--   - Dove va la chiave esterna?
+--   - Cosa succede alle recensioni se cancello un film? (ON DELETE ...)
+--   - Un autore puo' recensire lo stesso film due volte?
+--   - Quali colonne sono obbligatorie?
+--   - Cosa evita voti come 11?
+--
+-- Scrivi qui sotto il tuo CREATE TABLE recensioni (...):
+
+
+
+-- CHECKLIST
+--   [ ] chiave primaria (PK)
+--   [ ] chiave esterna (FK) verso film, con ON DELETE
+--   [ ] NOT NULL sulle colonne obbligatorie
+--   [ ] CHECK sul voto
+--   [ ] UNIQUE sulla coppia (film, autore)
+--   [ ] valore di DEFAULT per la data
+--
+-- TEST DA ESEGUIRE (ricorda PRAGMA foreign_keys = ON;)
+--   1. 2 INSERT validi
+--   2. voto 7 -> deve dare errore
+--   3. film_id 999 -> deve dare errore
+--   4. doppia recensione dello stesso autore sullo stesso film -> deve dare errore
+--   5. cancella un film -> le sue recensioni devono sparire

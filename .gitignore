@@ -1,7 +1,7 @@
 # Dipendenze
 node_modules/
 
-# Database generato da `npm run setup-db`
+# Database generato da `npm run setup-db` (lezione-5-database/database.sqlite)
 *.sqlite
 *.sqlite3
 *.db

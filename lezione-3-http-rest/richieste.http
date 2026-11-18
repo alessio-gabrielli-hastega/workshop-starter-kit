@@ -1,0 +1,112 @@
+# Lezione 3: HTTP e REST con un'API pubblica di prova.
+# Come si manda una richiesta: sopra ogni richiesta compare il link "Send Request". Cliccalo.
+# Le richieste si separano con una riga che inizia con ###
+#
+# ATTENZIONE: jsonplaceholder SIMULA le scritture. Risponde come se avesse salvato (201, 200...)
+# ma non salva nulla: se rileggi la risorsa dopo un POST non vedi la modifica.
+# Nelle richieste vere, quelle della Lezione 4, invece si vede.
+
+@baseUrl = https://jsonplaceholder.typicode.com
+
+### 1. GET di una risorsa -> 200
+# Cosa guardare: la status line, l'header Content-Type: application/json e il body.
+# Anatomia di una richiesta: metodo, URL, versione HTTP, header, body.
+# TODO: quali sono metodo, URL e versione HTTP di questa richiesta? E il body della richiesta?
+GET {{baseUrl}}/posts/1
+
+### 2. GET di una collezione -> 200, array di 100 elementi
+# Cosa guardare: il body e' un array.
+# TODO: perche' la risposta e' un array e non un oggetto?
+GET {{baseUrl}}/posts
+
+### 3a. Query string -> 200
+# Il ? apre la query string, la & separa le coppie chiave=valore.
+# TODO: quanti post ottieni? Sono tutti dell'utente 1?
+GET {{baseUrl}}/posts?userId=1
+
+### 3b. Due parametri -> 200, 3 post
+# TODO: cosa fa _limit?
+GET {{baseUrl}}/posts?userId=1&_limit=3
+
+### 4a. Risorse annidate -> 200
+# Cosa guardare: l'URL esprime la relazione "i post dell'utente 1".
+# TODO: che differenza c'e' con /posts?userId=1?
+GET {{baseUrl}}/users/1/posts
+
+### 4b. Risorse annidate -> 200
+GET {{baseUrl}}/posts/1/comments
+
+### 5a. Risorsa inesistente -> 404, body {}
+# TODO: cosa differenzia un 404 da un 400 e da un 500?
+GET {{baseUrl}}/posts/99999
+
+### 5b. URL sbagliato -> 404 (di solito)
+# TODO: l'errore e' nella risorsa o nel percorso?
+GET {{baseUrl}}/postss/1
+
+### 6. POST: crea una risorsa -> 201 con id: 101 (di solito)
+# Cosa guardare: 201 Created, e l'id e' assegnato dal server.
+# Il body e' JSON: serve l'header Content-Type: application/json.
+# TODO: perche' l'id non lo mandiamo noi?
+POST {{baseUrl}}/posts
+Content-Type: application/json
+
+{
+  "title": "Il mio primo post",
+  "body": "Ciao a tutti",
+  "userId": 1
+}
+
+### 7. PUT: sostituzione completa -> 200
+# Si manda l'oggetto COMPLETO: tutti i campi vengono sostituiti.
+# TODO: cosa succederebbe a un campo che dimentichi di mandare?
+PUT {{baseUrl}}/posts/1
+Content-Type: application/json
+
+{
+  "id": 1,
+  "title": "Titolo sostituito",
+  "body": "Corpo sostituito",
+  "userId": 1
+}
+
+### 8. PATCH: modifica parziale -> 200
+# Si manda solo cio' che cambia.
+# TODO: qual e' la differenza con PUT?
+PATCH {{baseUrl}}/posts/1
+Content-Type: application/json
+
+{
+  "title": "Solo il titolo cambia"
+}
+
+### 9. DELETE -> 200 con {} su questo servizio
+# Nota: le API ben fatte rispondono spesso 204 No Content (nessun body): sara' quello che faremo nella Lezione 4.
+# TODO: cosa ti aspetti se ripeti la DELETE su una risorsa gia' cancellata?
+DELETE {{baseUrl}}/posts/1
+
+### 10. Header -> 200
+# Cosa guardare: Accept dice al server che formato vogliamo; X-Corso e' un header inventato.
+# TODO: gli header servono al server, al client o a entrambi? Cosa c'e' di diverso negli header della risposta?
+GET {{baseUrl}}/posts/1
+Accept: application/json
+X-Corso: workshop
+
+### 11a. Idempotenza: esegui questa POST due volte
+# Discussione: GET, PUT e DELETE sono idempotenti (ripeterle da' lo stesso stato finale), POST no:
+# in un'API vera due POST creano due risorse. Il servizio finto risponde uguale.
+# TODO: cosa cambia nella risposta tra la prima e la seconda esecuzione?
+POST {{baseUrl}}/posts
+Content-Type: application/json
+
+{ "title": "Doppione", "body": "Mando due volte", "userId": 1 }
+
+### 11b. Idempotenza: esegui questa PUT due volte
+PUT {{baseUrl}}/posts/1
+Content-Type: application/json
+
+{ "id": 1, "title": "Sempre uguale", "body": "Sempre uguale", "userId": 1 }
+
+### 12. DevTools del browser
+# Apri https://jsonplaceholder.typicode.com/posts nel browser, premi F12 e vai nella tab Network.
+# Ricarica la pagina e osserva: Headers, Preview, Response, Timing.

@@ -1,0 +1,95 @@
+# Lezione 4 (e 7): richieste HTTP per provare il server.
+# Sopra ogni richiesta compare il link "Send Request": cliccalo per inviarla.
+# Le richieste si separano con una riga che inizia con ###
+# Avvia prima il server (npm run start-l4). Questi test valgono anche per la Lezione 7:
+# con il database i film sono 22 invece di 5.
+
+@baseUrl = http://localhost:3000
+
+### 1. Elenco film -> 200, 5 elementi (22 in Lezione 7)
+GET {{baseUrl}}/api/film
+
+### 2a. Filtro per genere -> 200, 3 elementi
+GET {{baseUrl}}/api/film?genere=Fantascienza
+
+### 2b. Filtro case-insensitive -> 200, 3 elementi
+GET {{baseUrl}}/api/film?genere=fantascienza
+
+### 2c. Genere inesistente -> 200, []
+GET {{baseUrl}}/api/film?genere=Inesistente
+
+### 3a. Dettaglio -> 200
+GET {{baseUrl}}/api/film/1
+
+### 3b. Id inesistente -> 404
+GET {{baseUrl}}/api/film/999
+
+### 3c. Id non valido -> 400
+GET {{baseUrl}}/api/film/abc
+
+### 4. Creazione -> 201, header Location, body con id
+# @name creato
+POST {{baseUrl}}/api/film
+Content-Type: application/json
+
+{ "titolo": "Il mio primo film", "anno": 2024, "genere": "Commedia", "durata_min": 90, "regista_id": 7 }
+
+### 5. Rileggo il film appena creato -> 200
+GET {{baseUrl}}/api/film/{{creato.response.body.$.id}}
+
+### 6a. POST senza titolo -> 400
+POST {{baseUrl}}/api/film
+Content-Type: application/json
+
+{ "anno": 2024, "regista_id": 7 }
+
+### 6b. POST con anno stringa -> 400
+POST {{baseUrl}}/api/film
+Content-Type: application/json
+
+{ "titolo": "Anno sbagliato", "anno": "2010", "regista_id": 7 }
+
+### 6c. POST con regista_id negativo -> 400
+POST {{baseUrl}}/api/film
+Content-Type: application/json
+
+{ "titolo": "Regista negativo", "anno": 2010, "regista_id": -1 }
+
+### 6d. POST con JSON non chiuso -> 400 "JSON non valido"
+POST {{baseUrl}}/api/film
+Content-Type: application/json
+
+{ "titolo":
+
+### 6e. POST duplicato (stesso titolo e anno di un film esistente) -> 409
+POST {{baseUrl}}/api/film
+Content-Type: application/json
+
+{ "titolo": "Matrix", "anno": 1999, "regista_id": 3 }
+
+### 7a. PUT valido -> 200
+PUT {{baseUrl}}/api/film/1
+Content-Type: application/json
+
+{ "titolo": "Inception", "anno": 2010, "genere": "Fantascienza", "durata_min": 150, "regista_id": 1 }
+
+### 7b. PUT su id inesistente -> 404
+PUT {{baseUrl}}/api/film/999
+Content-Type: application/json
+
+{ "titolo": "Fantasma", "anno": 2000, "regista_id": 1 }
+
+### 7c. PUT con body non valido -> 400
+PUT {{baseUrl}}/api/film/1
+Content-Type: application/json
+
+{ "titolo": "", "anno": 2010, "regista_id": 1 }
+
+### 8a. DELETE del film creato al punto 4 -> 204
+DELETE {{baseUrl}}/api/film/{{creato.response.body.$.id}}
+
+### 8b. Ripeti la DELETE -> 404
+DELETE {{baseUrl}}/api/film/{{creato.response.body.$.id}}
+
+### 9. Rotta inesistente -> 404 { "errore": ... }
+GET {{baseUrl}}/api/inesistente
